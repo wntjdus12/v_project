@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,17 +20,18 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          cd v_project/
+          cd node_server
           npm install
           npm install pm2 -g
 
       - name: Run App with PM2
         run: |
-          cd arduino/
-          pm2 start app.js --name "arduino-app" 
+          cd node_server
+          pm2 start app.js --name "node-app"
           pm2 save
 
-      - name: Stop App with pm2
+      - name: Stop App with pm2 (optional step)
+        if: always()
         run: |
-          pm2 stop "arduino-app"
-          pm2 delete "arduino-app"
+          pm2 stop "node-app" || true
+          pm2 delete "node-app" || true
