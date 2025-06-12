@@ -18,19 +18,19 @@ jobs:
         with:
           node-version: '18.20.0'
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
+        working-directory: node_server     
         run: |
-          cd node_server   
           npm install
           npm install pm2 -g
 
       - name: Run App with PM2
+        working-directory: node_server     
         run: |
-          cd node_server   
           pm2 start app.js --name "node-app"
           pm2 save
 
-      - name: Stop App with pm2
+      - name: Stop App with PM2
         if: always()
         run: |
           pm2 stop "node-app" || true
