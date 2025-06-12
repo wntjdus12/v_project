@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title> ESP8266 API Server </title>
+</head>
+<body>
+<h1> ESP8266 API Server </h1>
+------------------------------------------------------------------<br>
+<form method='post' action='/post-sensor' name='userForm' target='targetURL'>
+  <input type='button' value="GET /Hello" onclick='document.targetURL.location.href="/Hello"'>
+  <p>
+</form>
+------------------------------------------------------------------<br>
+<iframe name=targetURL class="iframe-preview center" width="90%" height="500" style="border:none;" src="http://3.36.70.226:3000/Hello">
+</iframe>
+</body>
+</html>
