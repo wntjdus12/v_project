@@ -17,20 +17,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18.20.0'
-      
+
       - name: Install Dependencies
         run: |
-          cd node_server
+          cd node_server   
           npm install
           npm install pm2 -g
 
       - name: Run App with PM2
         run: |
-          cd node_server
+          cd node_server   
           pm2 start app.js --name "node-app"
           pm2 save
 
-      - name: Stop App with pm2 (optional step)
+      - name: Stop App with pm2
         if: always()
         run: |
           pm2 stop "node-app" || true
