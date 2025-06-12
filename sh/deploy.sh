@@ -1,24 +1,24 @@
 #!/bin/bash
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm use node
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# nvm use node
 
-cd v_project
+# cd v_project
 
-git pull;
+# git pull;
 
-SRC=/work/v_project/node_server
-DEST=/$HOME/deploy
+# SRC=/work/v_project/node_server
+# DEST=/$HOME/deploy
 
-rm -rf $DEST
-mkdir -p $DEST
-cp -rf $SRC $DEST
+# rm -rf $DEST
+# mkdir -p $DEST
+# cp -rf $SRC $DEST
 
-cd $DEST/node_server
+# cd $DEST/node_server
 
-source ~/.bashrc
+# source ~/.bashrc
 
-npm install
+# npm install
 
-pm2 restart all
+# pm2 restart all
