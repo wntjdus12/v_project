@@ -1,35 +1,89 @@
-import streamlit as st
-import requests
-import pandas as pd
-import random
-import time
-from streamlit_autorefresh import st_autorefresh
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-temperature_data = []
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
-st.set_page_config(page_title="📈 실시간 온도 그래프", layout="wide")
-st.title("📊 실시간 온도 그래프 (±10 오차 포함)")
+const API_URL = "http://43.201.168.127:3000/temperatures";
 
-# 5초마다 새로고침
-st_autorefresh(interval=5000, limit=None, key="refresh")
+function TemperatureChart() {
+  const [data, setData] = useState([]);
+  const [baseTemp, setBaseTemp] = useState(null);
 
-API_URL = "http://3.36.70.226:3000/temperatures"
+  // 초기 로컬스토리지 데이터 불러오기
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("graph_data"));
+    if (saved) setData(saved);
+  }, []);
 
-# session state로 그래프 누적
-if "graph_data" not in st.session_state:
-    st.session_state.graph_data = []
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(API_URL);
+        if (res.status === 200) {
+          const base = res.data.temperature ?? 25.0;
+          const simulated = parseFloat((base + Math.random() * 20 - 10).toFixed(2));
+          setBaseTemp(base);
 
-try:
-    res = requests.get(API_URL)
-    if res.status_code == 200:
-        base_temp = res.json().get("temperature", 25.0)
-        simulated_temp = round(base_temp + random.uniform(-10, 10), 2)
-        st.session_state.graph_data.append(simulated_temp)
-        
-        df = pd.DataFrame(st.session_state.graph_data, columns  =["Temperature"])
-        st.line_chart(df)
-        st.success(f"🧪 기준 온도: {base_temp}℃ | 생성된 온도: {simulated_temp}℃ | 누적: {len(df)}개")
-    else:
-        st.error("서버 응답 실패")
-except Exception as e:
-    st.error(f"연결 오류: {e}")
+          setData((prev) => {
+            const updated = [...prev, simulated];
+            localStorage.setItem("graph_data", JSON.stringify(updated));
+            return updated;
+          });
+        }
+      } catch (error) {
+        console.error("API 오류:", error);
+      }
+    };
+
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const chartData = {
+    labels: data.map((_, idx) => idx + 1),
+    datasets: [
+      {
+        label: "Simulated Temperature (°C)",
+        data,
+        fill: false,
+        borderColor: "#3b82f6",
+        backgroundColor: "#3b82f6",
+        tension: 0.3,
+      },
+    ],
+  };
+
+  return (
+    <div style={{ width: "100%", maxWidth: 900, margin: "0 auto", padding: "20px" }}>
+      <h2>📊 실시간 온도 그래프 (±10 오차 포함)</h2>
+      <Line data={chartData} />
+      {baseTemp !== null && (
+        <p style={{ marginTop: 10 }}>
+          🧪 기준 온도: <strong>{baseTemp}℃</strong> | 누적:{" "}
+          <strong>{data.length}개</strong>
+        </p>
+      )}
+      <button
+        onClick={() => {
+          localStorage.removeItem("graph_data");
+          setData([]);
+        }}
+        style={{ marginTop: 10, padding: "5px 10px" }}
+      >
+        초기화
+      </button>
+    </div>
+  );
+}
+
+export default TemperatureChart
